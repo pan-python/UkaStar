@@ -262,13 +262,4 @@
 - 静态主页面：`hopeSystem/static/index.html:1`
 - 前端脚本：`hopeSystem/static/js/ai.js:1`，`hopeSystem/static/js/main.js:1`，`hopeSystem/static/js/growthTree.js:1`
 
----
-
-如需我进一步：
-- 生成建表 SQL、
-- 规范化 `requirements.txt`、
-- 拆分/去重路由并抽象公共逻辑、
-- 将密钥迁移到 `.env` 并改造加载逻辑，
-
-请告诉我你的优先级，我可以直接在仓库内完成改造并验证运行。
 
