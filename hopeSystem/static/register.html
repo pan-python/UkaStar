@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no,viewport-fit=cover">
+	<meta name="x5-page-mode" content="no-title">
+	<meta name="x5-orientation" content="portrait">
+	<meta name="full-screen" content="yes">
+	<meta name="x5-fullscreen" content="true">
+	<meta name="screen-orientation" content="portrait">
+    <title>优卡星积分奖励系统 - 注册</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        :root {
+            --primary: #4e73df;
+            --primary-light: #858796;
+            --secondary: #1cc88a;
+            --danger: #e74a3b;
+            --warning: #f6c23e;
+            --light: #f8f9fc;
+            --dark: #5a5c69;
+            --shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(to right, var(--primary), #2a55c5);
+            color: white;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .logo {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: #fff;
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto 20px;
+        }
+        
+        .main-content {
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+            width: 100%;
+        }
+        
+        .feature-card {
+            background: var(--light);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+        
+        .feature-title {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+        
+        .feature-desc {
+            color: #666;
+            font-size: 0.95rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: linear-gradient(to right, var(--primary), #2a55c5);
+            color: white;
+            padding: 15px 35px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 5px 15px rgba(78, 115, 223, 0.4);
+            transition: all 0.3s ease;
+            margin: 20px 0;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(78, 115, 223, 0.6);
+        }
+        
+        .btn i {
+            margin-right: 8px;
+        }
+        
+        /* 注册模态框样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            animation: modalAppear 0.4s ease-out;
+            overflow: hidden;
+        }
+        
+        @keyframes modalAppear {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .modal-header {
+            background: linear-gradient(to right, var(--primary), #2a55c5);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .modal-body {
+            padding: 25px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .form-input:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.2);
+        }
+        
+        .avatar-selection {
+            display: flex;
+            justify-content: space-between;
+            margin: 15px 0;
+        }
+        
+        .avatar-option {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .avatar-option img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .avatar-option.selected {
+            border-color: var(--primary);
+            transform: scale(1.1);
+        }
+        
+        .grade-select {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .grade-option {
+            padding: 12px;
+            background: var(--light);
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .grade-option.selected {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .modal-footer {
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid #eee;
+        }
+        
+        .submit-btn {
+            background: linear-gradient(to right, var(--secondary), #17a673);
+            color: white;
+            border: none;
+            padding: 14px 40px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            max-width: 300px;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(28, 200, 138, 0.4);
+        }
+        
+        .avatar-preview {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            border: 3px solid var(--primary);
+            overflow: hidden;
+        }
+        
+        .avatar-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .terms {
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: #666;
+            text-align: center;
+        }
+        
+        .terms a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9rem;
+            border-top: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <img src="images/logo.jpg" width="80" height="80" />
+            </div>
+            <h1>优星计划</h1>
+            <p class="subtitle">帮助孩子养成良好习惯，建立自律能力，通过积分奖励激励成长</p>
+            <button class="btn" id="register-btn">
+                <i class="fas fa-user-plus"></i> 注册新账号
+            </button>
+        </header>
+        
+        <div class="main-content">
+            <h2 style="color: var(--dark); margin-bottom: 20px; text-align: center;">为什么选择我们的系统？</h2>
+            
+            <div class="features">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 class="feature-title">成长可视化</h3>
+                    <p class="feature-desc">通过成长树和图表直观展示孩子的进步，让成长过程一目了然</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <h3 class="feature-title">奖励激励</h3>
+                    <p class="feature-desc">积分兑换奖励机制，激发孩子内在动力，培养良好习惯</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3 class="feature-title">AI助手</h3>
+                    <p class="feature-desc">智能AI助手提供学习辅导和成长建议，陪伴孩子共同进步</p>
+                </div>
+            </div>
+            
+            <p style="text-align: center; color: #666; max-width: 600px; margin: 20px 0;">
+                已有超过 <strong style="color: var(--primary);">10,000+</strong> 家庭使用我们的系统，帮助孩子建立自律习惯和学习动力
+            </p>
+            
+            <button class="btn" id="show-register-btn">
+                <i class="fas fa-user-circle"></i> 立即注册
+            </button>
+        </div>
+        
+        <footer>
+            <p>© 2025 优星计划 | 让孩子在成长中收获快乐与成就感</p>
+        </footer>
+    </div>
+    
+    <!-- 注册模态框 -->
+    <div class="modal" id="register-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">注册新账号</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <!--<div class="form-group">
+                    <div class="avatar-preview">
+                        <img src="https://ui-avatars.com/api/?name=新用户&background=4e73df&color=fff" id="avatar-preview">
+                    </div>
+                </div>-->
+                
+                <div class="form-group">
+                    <label class="form-label">小孩姓名</label>
+                    <input type="text" class="form-input" id="child-name" placeholder="请输入小孩姓名">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">选择年级</label>
+                    <div class="grade-select">
+						<div class="grade-option" data-grade="幼儿园小班">小班</div>
+						<div class="grade-option" data-grade="幼儿园中班">中班</div>
+						<div class="grade-option" data-grade="幼儿园大班">大班</div>
+                        <div class="grade-option" data-grade="小学一年级">一年级</div>
+                        <div class="grade-option" data-grade="小学二年级">二年级</div>
+                        <div class="grade-option" data-grade="小学三年级">三年级</div>
+                        <div class="grade-option" data-grade="小学四年级">四年级</div>
+                        <div class="grade-option" data-grade="小学五年级">五年级</div>
+                        <div class="grade-option" data-grade="小学六年级">六年级</div>
+                    </div>
+                </div>
+                
+                <!--div class="form-group">
+                    <label class="form-label">选择头像</label>
+                    <div class="avatar-selection">
+                        <div class="avatar-option selected" data-avatar="1">
+                            <img src="https://api.dicebear.com/6.x/bottts-neutral/svg?seed=Charlie" alt="头像1">
+                        </div>
+                        <div class="avatar-option" data-avatar="2">
+                            <img src="https://api.dicebear.com/6.x/bottts-neutral/svg?seed=Whiskers" alt="头像2">
+                        </div>
+                        <div class="avatar-option" data-avatar="3">
+                            <img src="https://api.dicebear.com/6.x/bottts-neutral/svg?seed=Annie" alt="头像3">
+                        </div>
+                        <div class="avatar-option" data-avatar="4">
+                            <img src="https://api.dicebear.com/6.x/bottts-neutral/svg?seed=Max" alt="头像4">
+                        </div>
+                    </div>
+                </div>-->
+                
+                
+                <div class="terms">
+                    <input type="checkbox" id="terms" checked>
+                    <label for="terms">我已阅读并同意<a href="#">《用户协议》</a>和<a href="#">《隐私政策》</a></label>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="submit-btn" id="submit-register">完成注册</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+	
+		const API_BASE = '/api';
+		 // 存储当前选中的年级
+        let selectedGrade = null;
+		// 微信OpenID存储键名
+		const WECHAT_OPENID_KEY = 'wechat_openid';
+
+		// 获取微信OpenID
+		function getWechatOpenid() {
+			// 1. 尝试从本地存储获取
+			const storedOpenid = localStorage.getItem(WECHAT_OPENID_KEY);
+			if (storedOpenid) {
+				return storedOpenid;
+			}
+
+			// 2. 尝试从URL参数获取 (假设后端重定向时传递了openid参数)
+			const urlParams = new URLSearchParams(window.location.search);
+			const urlOpenid = urlParams.get('openid');
+			if (urlOpenid) {
+				// 保存到本地存储
+				localStorage.setItem(WECHAT_OPENID_KEY, urlOpenid);
+				return urlOpenid;
+			}
+
+			// 3. 如果都没有，返回null
+			return null;
+		}
+		// 启动微信授权流程
+		function startWechatAuth() {
+			
+			// 使用后端API获取微信授权URL
+			fetch(`${API_BASE}/auth2`)
+			.then(response => {
+				if (!response.ok) {
+					throw new Error(`HTTP ${response.status}`);
+				}
+				return response.json(); // 正确解析JSON响应
+			})
+			.then(data => {
+				if(data.authUrl) {
+					console.log('获取授权URL成功:', data.authUrl);
+					// 存储state用于后续验证
+					localStorage.setItem('wechat_auth_state', data.state);
+					// 跳转到微信授权页面
+					window.location.replace(data.authUrl);
+				} else {
+					throw new Error(data.error || '获取授权URL失败');
+				}
+			})
+			.catch(error => {
+				console.error('授权请求失败', error);
+				document.getElementById('account-tip').innerHTML = `
+					<i class="fas fa-exclamation-circle" style="color: #e74a3b;"></i>
+					<span>授权失败: ${error.message}</span>
+					<button id="retry-auth" style="margin-left:10px; background: #4e73df; color: white; border: none; border-radius: 5px; padding: 2px 8px;">重试</button>
+				`;
+				document.getElementById('retry-auth').addEventListener('click', startWechatAuth);
+			});
+		}
+		
+		
+		// 在微信环境中使用
+		const ua = window.navigator.userAgent.toLowerCase();
+		if (ua.includes('micromessenger')) {
+			const openid = getWechatOpenid();
+			if (!openid) {
+				// 如果没有openid，启动微信授权流程
+				startWechatAuth();
+			}
+		}
+		
+        // DOM 元素
+        const registerBtn = document.getElementById('register-btn');
+        const showRegisterBtn = document.getElementById('show-register-btn');
+        const registerModal = document.getElementById('register-modal');
+        const closeModalBtn = document.querySelector('.close-modal');
+        const submitBtn = document.getElementById('submit-register');
+        //const avatarOptions = document.querySelectorAll('.avatar-option');
+        const gradeOptions = document.querySelectorAll('.grade-option');
+        const avatarPreview = document.getElementById('avatar-preview');
+        
+        // 打开注册模态框
+        function openRegisterModal() {
+            registerModal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+        
+        // 关闭注册模态框
+        function closeRegisterModal() {
+            registerModal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+        
+        // 事件监听
+        registerBtn.addEventListener('click', openRegisterModal);
+        showRegisterBtn.addEventListener('click', openRegisterModal);
+        closeModalBtn.addEventListener('click', closeRegisterModal);
+        
+        // 点击模态框外部关闭
+        registerModal.addEventListener('click', (e) => {
+            if (e.target === registerModal) {
+                closeRegisterModal();
+            }
+        });
+        
+        
+          // 年级选择 - 修复问题
+        gradeOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                // 移除所有选中状态
+                gradeOptions.forEach(opt => opt.classList.remove('selected'));
+                
+                // 添加当前选中状态
+                option.classList.add('selected');
+                
+                // 存储选中的年级
+                selectedGrade = option.dataset.grade;
+                
+            });
+        });
+        
+        // 提交注册表单
+        submitBtn.addEventListener('click', () => {
+            const childName = document.getElementById('child-name').value;
+            const terms = document.getElementById('terms').checked;
+            const openid = getWechatOpenid();
+			if (!openid) {
+                alert('请刷新完成用户授权');
+                return;
+            }
+            // 表单验证
+            if (!childName) {
+                alert('请输入小孩姓名');
+                return;
+            }
+        
+            // 获取选中的年级
+            if (!selectedGrade) {
+                alert('请选择小孩年级');
+                return;
+            }
+			if (!terms) {
+                alert('请阅读并同意用户协议和隐私政策');
+                return;
+            }
+            
+            // 获取选中的头像
+            //const selectedAvatar = document.querySelector('.avatar-option.selected');
+            //const avatar = selectedAvatar.dataset.avatar;
+			
+			try {
+				const response = fetch(`${API_BASE}/register`, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({
+						name: childName,
+						grade: selectedGrade,
+						wechat_openid: openid
+					})
+				});
+				
+				 //注册成功
+				alert(`注册成功！`);
+				window.location.replace("http://yunze.mynatapp.cc/static/index.html");
+			} catch (error) {
+				console.error('注册失败:', error);
+				alert('注册失败，请稍后重试');
+			}
+            
+            
+           
+        });
+        
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<body>
+<script>
+// 检查URL参数中是否有授权结果
+	document.addEventListener('DOMContentLoaded', function() {
+		const urlParams = new URLSearchParams(window.location.search);
+		if (urlParams.has('auth_success')) {
+			const userInfo = JSON.parse(decodeURIComponent(urlParams.get('user')));
+			console.log('微信授权成功:', userInfo);
+			// 保存用户信息到localStorage
+			localStorage.setItem('wechat_user', JSON.stringify(userInfo));
+			localStorage.setItem('wechat_openid', userInfo.openid);
+			
+			// 立即重定向到干净URL
+			const cleanURL = window.location.origin + window.location.pathname;
+			// 添加随机参数避免缓存问题
+            const timestamp = new Date().getTime();
+            window.location.replace('http://yunze.mynatapp.cc/static/index.html?openid='+userInfo.openid);
+
+			
+		}
+		
+		if (urlParams.has('error')) {
+			const error = urlParams.get('error');
+			const message = urlParams.get('message') || '未知错误';
+			
+			console.error('微信授权失败:', error, message);
+			document.getElementById('account-tip').innerHTML = `
+				<i class="fas fa-exclamation-circle" style="color: #e74a3b;"></i>
+				<span>授权失败: ${message}</span>
+				<button id="retry-auth" style="margin-left:10px; background: #4e73df; color: white; border: none; border-radius: 5px; padding: 2px 8px;">重试</button>
+			`;
+			document.getElementById('retry-auth').addEventListener('click', startWechatAuth);
+		}
+	});
+</script>
+</body>
+</html>

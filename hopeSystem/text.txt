@@ -1,0 +1,84 @@
+/project-root
+  ├── app.py               # Flask主程序
+  ├── database.py          # 数据库连接和初始化
+  ├── models.py            # 数据模型
+  ├── routes.py            # API路由
+  ├── .env                 # 环境变量配置
+  ├── requirements.txt     # 依赖列表
+  └── static/              # 静态文件目录（前端代码）
+      ├── index.html
+      ├── style.css
+      └── script.js
+
+
+
+
+
+
+前端集成
+将之前提供的HTML5前端代码放在static目录下，并修改JavaScript代码以调用这些API：
+
+javascript
+// 示例：获取用户信息
+async function fetchUser(userId) {
+    try {
+        const response = await fetch(`/api/users/${userId}`);
+        const user = await response.json();
+        // 更新UI显示用户信息
+        document.querySelector('.user-details h1').textContent = user.name;
+        document.querySelector('.points-value').textContent = user.total_points;
+        // ...其他更新
+    } catch (error) {
+        console.error('获取用户信息失败:', error);
+    }
+}
+
+// 示例：添加加分记录
+async function addPoints(userId, itemId) {
+    try {
+        const response = await fetch('/api/add_points', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                user_id: userId,
+                item_id: itemId
+            })
+        });
+        
+        const result = await response.json();
+        if (response.ok) {
+            alert(result.message);
+            // 更新UI显示新积分
+            document.querySelector('.points-value').textContent = result.new_points;
+        } else {
+            alert(result.error);
+        }
+    } catch (error) {
+        console.error('加分操作失败:', error);
+    }
+}
+
+// 其他API调用类似
+运行步骤
+创建MySQL数据库：
+
+sql
+CREATE DATABASE point_system;
+配置环境变量（或修改config.py中的配置）
+
+安装依赖：
+
+bash
+pip install -r requirements.txt
+启动后端服务：
+
+bash
+python app.py
+访问前端页面：
+
+text
+http://localhost:9090/static/index.html
+
+pip install mysql-connector-python==8.0.32 -i https://pypi.tuna.tsinghua.edu.cn/simple
