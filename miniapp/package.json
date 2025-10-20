@@ -1,0 +1,19 @@
+{
+  "name": "miniapp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev:mp-weixin": "uniapp-cli dev:mp-weixin",
+    "build:mp-weixin": "uniapp-cli build:mp-weixin"
+  },
+  "dependencies": {
+    "@dcloudio/uni-app": "^3.0.0-alpha-409042024",
+    "pinia": "^2.1.7"
+  },
+  "devDependencies": {
+    "@dcloudio/vite-plugin-uni": "^4.0.0-alpha-409042024",
+    "typescript": "^5.4.5",
+    "vite": "^5.2.0"
+  }
+}

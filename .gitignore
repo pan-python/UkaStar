@@ -1,0 +1,19 @@
+# Backend
+backend-service/build/
+backend-service/.gradle/
+backend-service/target/
+
+# Frontend
+admin-ui/node_modules/
+admin-ui/dist/
+
+# Miniapp
+miniapp/node_modules/
+miniapp/dist/
+
+# Python
+ocr-service/.venv/
+__pycache__/
+
+# General
+.DS_Store
