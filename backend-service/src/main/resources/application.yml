@@ -1,0 +1,42 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: backend-service
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+  global-config:
+    db-config:
+      logic-delete-field: is_deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+security:
+  jwt:
+    secret: "YhT6dXB1UKASTAR-Backend-Secret-Key-ChangeMe123456"
+    issuer: "ukastar-backend"
+    access-token-ttl: 15m
+    refresh-token-ttl: 7d
+minio:
+  enabled: false
+  endpoint: http://localhost:9000
+  access-key: ${MINIO_ACCESS_KEY:change-me}
+  secret-key: ${MINIO_SECRET_KEY:change-me}
+  bucket: ukastar
+  region:
+ai:
+  deepseek:
+    enabled: false
+    api-key: ${DEEPSEEK_API_KEY:}
+    base-url: https://dashscope.aliyuncs.com/compatible-mode/v1
+    model: deepseek-chat
+ws:
+  enabled: false
+  path: /ws
+  idle-timeout: 5m
+  max-text-message-size: 64KB
+sentinel:
+  enabled: false
+  dashboard: http://localhost:8719
+  project-name: backend-service
+  heartbeat-interval: 5s
