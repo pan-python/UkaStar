@@ -10,7 +10,7 @@ import java.time.Instant;
 public record PointRecordResponse(
         Long id,
         Long tenantId,
-        Long familyId,
+        Long childId,
         Long operatorAccountId,
         PointActionType actionType,
         int amount,

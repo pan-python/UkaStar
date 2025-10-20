@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * 内存孩子仓储。
  */
 @Repository
+@org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(prefix = "infra.db", name = "enabled", havingValue = "false", matchIfMissing = true)
 public class InMemoryChildRepository implements ChildRepository {
 
     private final Map<Long, Child> children = new ConcurrentHashMap<>();

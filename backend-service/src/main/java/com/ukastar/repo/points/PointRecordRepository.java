@@ -10,7 +10,7 @@ public interface PointRecordRepository {
 
     Flux<PointRecord> findByTenantId(Long tenantId);
 
-    Flux<PointRecord> findByFamilyId(Long familyId);
+    Flux<PointRecord> findByChildId(Long childId);
 
     Flux<PointRecord> findRecent(int limit);
 

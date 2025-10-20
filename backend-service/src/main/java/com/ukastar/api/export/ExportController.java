@@ -34,10 +34,10 @@ public class ExportController {
     public Mono<ApiResponse<ExportResponse>> exportPoints(@RequestBody Mono<@Valid ExportRequest> requestMono) {
         return requestMono.flatMap(request -> pointLedgerService.listRecordsByTenant(request.tenantId()).collectList()
                 .map(records -> {
-                    StringBuilder builder = new StringBuilder("id,family_id,action,amount,balance_after,occurred_at\n");
+                    StringBuilder builder = new StringBuilder("id,child_id,action,amount,balance_after,occurred_at\n");
                     DateTimeFormatter formatter = DateTimeFormatter.ISO_INSTANT;
                     records.forEach(record -> builder.append(record.id()).append(',')
-                            .append(record.familyId()).append(',')
+                            .append(record.childId()).append(',')
                             .append(record.actionType()).append(',')
                             .append(record.amount()).append(',')
                             .append(record.balanceAfter()).append(',')

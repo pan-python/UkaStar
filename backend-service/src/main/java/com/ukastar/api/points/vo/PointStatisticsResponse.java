@@ -6,7 +6,7 @@ package com.ukastar.api.points.vo;
 public record PointStatisticsResponse(
         int todayCount,
         int todayNetScore,
-        int totalFamilies,
+        int totalChildren,
         int totalPoints,
         int weeklyNetScore
 ) {

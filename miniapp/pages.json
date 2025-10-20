@@ -5,6 +5,26 @@
       "style": {
         "navigationBarTitleText": "UkaStar"
       }
+    },
+    {
+      "path": "pages/points/index",
+      "style": { "navigationBarTitleText": "积分概览" }
+    },
+    {
+      "path": "pages/points/operate",
+      "style": { "navigationBarTitleText": "积分操作" }
+    },
+    {
+      "path": "pages/points/records",
+      "style": { "navigationBarTitleText": "积分记录" }
+    },
+    {
+      "path": "pages/chat/index",
+      "style": { "navigationBarTitleText": "AI 聊天" }
+    },
+    {
+      "path": "pages/ocr/index",
+      "style": { "navigationBarTitleText": "拍照识别" }
     }
   ]
 }

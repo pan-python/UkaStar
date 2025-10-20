@@ -2,12 +2,14 @@ package com.ukastar.service.points;
 
 import com.ukastar.common.error.ErrorCode;
 import com.ukastar.common.exception.BusinessException;
-import com.ukastar.domain.family.Family;
+import com.ukastar.domain.family.Child;
 import com.ukastar.domain.points.PointActionType;
 import com.ukastar.domain.points.PointBalance;
 import com.ukastar.domain.points.PointRecord;
 import com.ukastar.domain.points.PointStatistics;
-import com.ukastar.repo.family.FamilyRepository;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.ukastar.persistence.entity.DailyPointsEntity;
+import com.ukastar.persistence.mapper.DailyPointsMapper;
 import com.ukastar.repo.points.PointBalanceRepository;
 import com.ukastar.repo.points.PointRecordRepository;
 import org.springframework.stereotype.Service;
@@ -28,30 +30,33 @@ public class DefaultPointLedgerService implements PointLedgerService {
 
     private final PointBalanceRepository pointBalanceRepository;
     private final PointRecordRepository pointRecordRepository;
-    private final FamilyRepository familyRepository;
+    private final com.ukastar.repo.family.child.ChildRepository childRepository;
     private final AtomicLong recordSequence = new AtomicLong(1);
+    private final org.springframework.beans.factory.ObjectProvider<DailyPointsMapper> dailyPointsMapperProvider;
 
     public DefaultPointLedgerService(PointBalanceRepository pointBalanceRepository,
                                      PointRecordRepository pointRecordRepository,
-                                     FamilyRepository familyRepository) {
+                                     com.ukastar.repo.family.child.ChildRepository childRepository,
+                                     org.springframework.beans.factory.ObjectProvider<DailyPointsMapper> dailyPointsMapperProvider) {
         this.pointBalanceRepository = pointBalanceRepository;
         this.pointRecordRepository = pointRecordRepository;
-        this.familyRepository = familyRepository;
+        this.childRepository = childRepository;
+        this.dailyPointsMapperProvider = dailyPointsMapperProvider;
     }
 
     @Override
-    public Mono<PointBalance> award(Long familyId, int amount, Long operatorAccountId, String reason) {
-        return applyChange(familyId, amount, operatorAccountId, reason, PointActionType.AWARD);
+    public Mono<PointBalance> award(Long childId, int amount, Long operatorAccountId, String reason) {
+        return applyChange(childId, amount, operatorAccountId, reason, PointActionType.AWARD);
     }
 
     @Override
-    public Mono<PointBalance> deduct(Long familyId, int amount, Long operatorAccountId, String reason) {
-        return applyChange(familyId, -Math.abs(amount), operatorAccountId, reason, PointActionType.DEDUCT);
+    public Mono<PointBalance> deduct(Long childId, int amount, Long operatorAccountId, String reason) {
+        return applyChange(childId, -Math.abs(amount), operatorAccountId, reason, PointActionType.DEDUCT);
     }
 
     @Override
-    public Mono<PointBalance> redeem(Long familyId, int amount, Long operatorAccountId, String reason) {
-        return applyChange(familyId, -Math.abs(amount), operatorAccountId, reason, PointActionType.REDEEM);
+    public Mono<PointBalance> redeem(Long childId, int amount, Long operatorAccountId, String reason) {
+        return applyChange(childId, -Math.abs(amount), operatorAccountId, reason, PointActionType.REDEEM);
     }
 
     @Override
@@ -60,8 +65,8 @@ public class DefaultPointLedgerService implements PointLedgerService {
     }
 
     @Override
-    public Flux<PointRecord> listRecordsByFamily(Long familyId) {
-        return pointRecordRepository.findByFamilyId(familyId);
+    public Flux<PointRecord> listRecordsByChild(Long childId) {
+        return pointRecordRepository.findByChildId(childId);
     }
 
     @Override
@@ -100,20 +105,47 @@ public class DefaultPointLedgerService implements PointLedgerService {
         };
     }
 
-    private Mono<PointBalance> applyChange(Long familyId, int delta, Long operatorAccountId, String reason, PointActionType type) {
-        return familyRepository.findById(familyId)
-                .switchIfEmpty(Mono.error(new BusinessException(ErrorCode.RESOURCE_NOT_FOUND, "家庭不存在")))
-                .flatMap(family -> pointBalanceRepository.findByFamilyId(familyId)
-                        .defaultIfEmpty(new PointBalance(familyId, family.tenantId(), 0))
+    private Mono<PointBalance> applyChange(Long childId, int delta, Long operatorAccountId, String reason, PointActionType type) {
+        return childRepository.findById(childId)
+                .switchIfEmpty(Mono.error(new BusinessException(ErrorCode.RESOURCE_NOT_FOUND, "孩子不存在")))
+                .flatMap(child -> pointBalanceRepository.findByChildId(childId)
+                        .defaultIfEmpty(new PointBalance(childId, child.tenantId(), 0))
                         .flatMap(balance -> {
                             int newBalance = balance.balance() + delta;
                             if (newBalance < 0) {
                                 return Mono.error(new BusinessException(ErrorCode.BUSINESS_ERROR, "积分不足"));
                             }
                             PointBalance updated = balance.withBalance(newBalance);
-                            PointRecord record = new PointRecord(recordSequence.getAndIncrement(), family.tenantId(), familyId, operatorAccountId, type, Math.abs(delta), newBalance, reason, Instant.now());
+                            PointRecord record = new PointRecord(recordSequence.getAndIncrement(), child.tenantId(), childId, operatorAccountId, type, Math.abs(delta), newBalance, reason, Instant.now());
                             return pointBalanceRepository.save(updated)
-                                    .flatMap(saved -> pointRecordRepository.saveAll(List.of(record)).then(Mono.just(saved)));
+                                    .flatMap(saved -> pointRecordRepository.saveAll(List.of(record)).then(Mono.just(saved)))
+                                    .doOnSuccess(b -> upsertDailyPoints(child.tenantId(), childId, type, Math.abs(delta), newBalance));
                         }));
+    }
+
+    private void upsertDailyPoints(Long tenantId, Long childId, PointActionType type, int amount, int balanceAfter) {
+        DailyPointsMapper mapper = dailyPointsMapperProvider.getIfAvailable();
+        if (mapper == null) return;
+        java.time.LocalDate today = java.time.LocalDate.now(java.time.ZoneOffset.UTC);
+        DailyPointsEntity row = mapper.selectOne(new QueryWrapper<DailyPointsEntity>()
+                .eq("tenant_id", tenantId)
+                .eq("child_id", childId)
+                .eq("stat_date", today));
+        if (row == null) {
+            row = new DailyPointsEntity();
+            row.setTenantId(tenantId);
+            row.setChildId(childId);
+            row.setStatDate(today);
+            row.setTotalIncrease(0);
+            row.setTotalDecrease(0);
+            row.setTotalRedeem(0);
+        }
+        switch (type) {
+            case AWARD -> row.setTotalIncrease((row.getTotalIncrease() == null ? 0 : row.getTotalIncrease()) + amount);
+            case DEDUCT -> row.setTotalDecrease((row.getTotalDecrease() == null ? 0 : row.getTotalDecrease()) + amount);
+            case REDEEM -> row.setTotalRedeem((row.getTotalRedeem() == null ? 0 : row.getTotalRedeem()) + amount);
+        }
+        row.setBalance(balanceAfter);
+        if (row.getId() == null) mapper.insert(row); else mapper.updateById(row);
     }
 }

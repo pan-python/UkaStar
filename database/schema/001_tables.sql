@@ -207,6 +207,25 @@ CREATE TABLE IF NOT EXISTS parent_child (
     CONSTRAINT fk_parent_child_child FOREIGN KEY (child_id) REFERENCES children (id)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT='家长孩子关联';
 
+-- 新增：家庭成员关系表（家庭与家长/孩子的关联）
+CREATE TABLE IF NOT EXISTS family_member (
+    id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+    tenant_id BIGINT UNSIGNED NOT NULL,
+    family_id BIGINT UNSIGNED NOT NULL,
+    member_type ENUM('PARENT','CHILD') NOT NULL,
+    member_id BIGINT UNSIGNED NOT NULL,
+    relation VARCHAR(32) NULL,
+    is_guardian TINYINT NOT NULL DEFAULT 0,
+    is_deleted TINYINT NOT NULL DEFAULT 0,
+    created_by BIGINT UNSIGNED NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_by BIGINT UNSIGNED NULL,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_family_member (tenant_id, family_id, member_type, member_id),
+    KEY idx_family_member_family (tenant_id, family_id),
+    CONSTRAINT fk_family_member_family FOREIGN KEY (family_id) REFERENCES families (id)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT='家庭成员关联';
+
 CREATE TABLE IF NOT EXISTS point_categories (
     id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
     tenant_id BIGINT UNSIGNED NOT NULL,

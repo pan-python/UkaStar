@@ -1,7 +1,6 @@
 package com.ukastar.api.points;
 
-import com.ukastar.api.family.vo.FamilyCreateRequest;
-import com.ukastar.api.family.vo.FamilyResponse;
+import com.ukastar.api.family.vo.*;
 import com.ukastar.api.points.vo.PointBalanceResponse;
 import com.ukastar.api.points.vo.PointOperationRequest;
 import com.ukastar.api.points.vo.PointRecordResponse;
@@ -37,26 +36,33 @@ class PointLedgerControllerTest extends WebTestClientSupport {
                 .exchange(), FAMILY_RESPONSE_TYPE);
         FamilyResponse family = familyCreate.data();
 
+        // 绑定一个孩子
+        ApiResponse<FamilyResponse> afterChildren = readBody(client.post()
+                .uri("/api/families/" + family.id() + "/children")
+                .bodyValue(new ChildBindingRequest(List.of(new ChildPayload(null, token.tenantId(), "小明", null))))
+                .exchange(), FAMILY_RESPONSE_TYPE);
+        Long childId = afterChildren.data().children().get(0).id();
+
         ApiResponse<PointBalanceResponse> award = readBody(client.post()
                 .uri("/api/points/award")
-                .bodyValue(new PointOperationRequest(family.id(), token.accountId(), 20, "课堂表现"))
+                .bodyValue(new PointOperationRequest(childId, token.accountId(), 20, "课堂表现"))
                 .exchange(), BALANCE_RESPONSE_TYPE);
         assertEquals(20, award.data().balance());
 
         ApiResponse<PointBalanceResponse> deduct = readBody(client.post()
                 .uri("/api/points/deduct")
-                .bodyValue(new PointOperationRequest(family.id(), token.accountId(), 5, "迟到"))
+                .bodyValue(new PointOperationRequest(childId, token.accountId(), 5, "迟到"))
                 .exchange(), BALANCE_RESPONSE_TYPE);
         assertEquals(15, deduct.data().balance());
 
         ApiResponse<PointBalanceResponse> redeem = readBody(client.post()
                 .uri("/api/points/redeem")
-                .bodyValue(new PointOperationRequest(family.id(), token.accountId(), 10, "兑换礼物"))
+                .bodyValue(new PointOperationRequest(childId, token.accountId(), 10, "兑换礼物"))
                 .exchange(), BALANCE_RESPONSE_TYPE);
         assertEquals(5, redeem.data().balance());
 
         List<PointRecordResponse> records = client.get()
-                .uri(uriBuilder -> uriBuilder.path("/api/points/records").queryParam("familyId", family.id()).build())
+                .uri(uriBuilder -> uriBuilder.path("/api/points/records").queryParam("childId", childId).build())
                 .exchange()
                 .expectStatus().isOk()
                 .expectBodyList(PointRecordResponse.class)

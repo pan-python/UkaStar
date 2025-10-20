@@ -15,6 +15,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * 内存审计仓储。
  */
 @Repository
+@org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(prefix = "infra.db", name = "enabled", havingValue = "false", matchIfMissing = true)
 public class InMemoryAuditEventRepository implements AuditEventRepository {
 
     private final List<AuditEvent> events = new ArrayList<>();

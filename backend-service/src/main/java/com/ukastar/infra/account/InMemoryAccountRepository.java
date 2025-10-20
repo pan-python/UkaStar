@@ -20,6 +20,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * 基于内存的账号仓储实现，便于在接入数据库前验证鉴权流程。
  */
 @Repository
+@org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(prefix = "infra.db", name = "enabled", havingValue = "false", matchIfMissing = true)
 public class InMemoryAccountRepository implements AccountRepository {
 
     private final Map<Long, Account> accounts = new ConcurrentHashMap<>();

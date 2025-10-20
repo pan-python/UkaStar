@@ -9,7 +9,7 @@ import reactor.core.publisher.Mono;
  */
 public interface PointBalanceRepository {
 
-    Mono<PointBalance> findByFamilyId(Long familyId);
+    Mono<PointBalance> findByChildId(Long childId);
 
     Mono<PointBalance> save(PointBalance balance);
 

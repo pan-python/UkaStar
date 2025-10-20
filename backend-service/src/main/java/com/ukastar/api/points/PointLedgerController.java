@@ -35,7 +35,7 @@ public class PointLedgerController {
     @PostMapping("/award")
     @PreAuthorize("hasAuthority('PERM_POINTS_OPERATE')")
     public Mono<ApiResponse<PointBalanceResponse>> award(@RequestBody Mono<@Valid PointOperationRequest> requestMono) {
-        return requestMono.flatMap(request -> pointLedgerService.award(request.familyId(), request.amount(), request.operatorAccountId(), request.reason()))
+        return requestMono.flatMap(request -> pointLedgerService.award(request.childId(), request.amount(), request.operatorAccountId(), request.reason()))
                 .map(this::mapBalance)
                 .map(ApiResponse::success);
     }
@@ -43,7 +43,7 @@ public class PointLedgerController {
     @PostMapping("/deduct")
     @PreAuthorize("hasAuthority('PERM_POINTS_OPERATE')")
     public Mono<ApiResponse<PointBalanceResponse>> deduct(@RequestBody Mono<@Valid PointOperationRequest> requestMono) {
-        return requestMono.flatMap(request -> pointLedgerService.deduct(request.familyId(), request.amount(), request.operatorAccountId(), request.reason()))
+        return requestMono.flatMap(request -> pointLedgerService.deduct(request.childId(), request.amount(), request.operatorAccountId(), request.reason()))
                 .map(this::mapBalance)
                 .map(ApiResponse::success);
     }
@@ -51,16 +51,16 @@ public class PointLedgerController {
     @PostMapping("/redeem")
     @PreAuthorize("hasAuthority('PERM_POINTS_OPERATE')")
     public Mono<ApiResponse<PointBalanceResponse>> redeem(@RequestBody Mono<@Valid PointOperationRequest> requestMono) {
-        return requestMono.flatMap(request -> pointLedgerService.redeem(request.familyId(), request.amount(), request.operatorAccountId(), request.reason()))
+        return requestMono.flatMap(request -> pointLedgerService.redeem(request.childId(), request.amount(), request.operatorAccountId(), request.reason()))
                 .map(this::mapBalance)
                 .map(ApiResponse::success);
     }
 
     @GetMapping("/records")
     @PreAuthorize("hasAuthority('PERM_POINTS_VIEW')")
-    public Flux<PointRecordResponse> listRecords(@RequestParam(required = false) Long tenantId, @RequestParam(required = false) Long familyId) {
-        if (familyId != null) {
-            return pointLedgerService.listRecordsByFamily(familyId).map(this::mapRecord);
+    public Flux<PointRecordResponse> listRecords(@RequestParam(required = false) Long tenantId, @RequestParam(required = false) Long childId) {
+        if (childId != null) {
+            return pointLedgerService.listRecordsByChild(childId).map(this::mapRecord);
         }
         if (tenantId == null) {
             return Flux.empty();
@@ -72,14 +72,30 @@ public class PointLedgerController {
     @PreAuthorize("hasAuthority('PERM_POINTS_VIEW')")
     public Mono<PointStatisticsResponse> statistics(@RequestParam Long tenantId) {
         return pointLedgerService.statistics(tenantId)
-                .map(stats -> new PointStatisticsResponse(stats.todayCount(), stats.todayNetScore(), stats.totalFamilies(), stats.totalPoints(), stats.weeklyNetScore()));
+                .map(stats -> new PointStatisticsResponse(stats.todayCount(), stats.todayNetScore(), stats.totalChildren(), stats.totalPoints(), stats.weeklyNetScore()));
+    }
+
+    @GetMapping("/balance")
+    @PreAuthorize("hasAuthority('PERM_POINTS_VIEW')")
+    public Mono<ApiResponse<PointBalanceResponse>> balance(@RequestParam Long childId) {
+        return pointLedgerService
+                .listRecordsByChild(childId) // 若仓储提供 balance 方法更佳；此处先通过已有服务组合
+                .collectList()
+                .map(list -> {
+                    if (list.isEmpty()) {
+                        return new PointBalanceResponse(childId, null, 0);
+                    }
+                    var last = list.get(list.size() - 1);
+                    return new PointBalanceResponse(last.childId(), last.tenantId(), last.balanceAfter());
+                })
+                .map(ApiResponse::success);
     }
 
     private PointBalanceResponse mapBalance(PointBalance balance) {
-        return new PointBalanceResponse(balance.familyId(), balance.tenantId(), balance.balance());
+        return new PointBalanceResponse(balance.childId(), balance.tenantId(), balance.balance());
     }
 
     private PointRecordResponse mapRecord(PointRecord record) {
-        return new PointRecordResponse(record.id(), record.tenantId(), record.familyId(), record.operatorAccountId(), record.actionType(), record.amount(), record.balanceAfter(), record.reason(), record.occurredAt());
+        return new PointRecordResponse(record.id(), record.tenantId(), record.childId(), record.operatorAccountId(), record.actionType(), record.amount(), record.balanceAfter(), record.reason(), record.occurredAt());
     }
 }

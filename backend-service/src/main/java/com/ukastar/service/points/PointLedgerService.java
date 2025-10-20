@@ -11,15 +11,15 @@ import reactor.core.publisher.Mono;
  */
 public interface PointLedgerService {
 
-    Mono<PointBalance> award(Long familyId, int amount, Long operatorAccountId, String reason);
+    Mono<PointBalance> award(Long childId, int amount, Long operatorAccountId, String reason);
 
-    Mono<PointBalance> deduct(Long familyId, int amount, Long operatorAccountId, String reason);
+    Mono<PointBalance> deduct(Long childId, int amount, Long operatorAccountId, String reason);
 
-    Mono<PointBalance> redeem(Long familyId, int amount, Long operatorAccountId, String reason);
+    Mono<PointBalance> redeem(Long childId, int amount, Long operatorAccountId, String reason);
 
     Flux<PointRecord> listRecordsByTenant(Long tenantId);
 
-    Flux<PointRecord> listRecordsByFamily(Long familyId);
+    Flux<PointRecord> listRecordsByChild(Long childId);
 
     Mono<PointStatistics> statistics(Long tenantId);
 }

@@ -3,6 +3,7 @@ package com.ukastar.infra.mybatis;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.LogicDeleteInnerInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.TenantLineInnerInterceptor;
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -10,6 +11,7 @@ import org.springframework.context.annotation.Configuration;
  * MyBatis-Plus 核心配置，统一注册租户、逻辑删除等拦截器。
  */
 @Configuration
+@MapperScan(basePackages = "com.ukastar.persistence.mapper")
 public class MybatisPlusConfiguration {
 
     @Bean

@@ -6,7 +6,7 @@ package com.ukastar.domain.points;
 public record PointStatistics(
         int todayCount,
         int todayNetScore,
-        int totalFamilies,
+        int totalChildren,
         int totalPoints,
         int weeklyNetScore
 ) {

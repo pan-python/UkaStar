@@ -181,6 +181,7 @@ public class InMemoryRbacStore {
                         "MENU_SYSTEM_INFO",
                         "MENU_POINTS_CENTER",
                         "MENU_AUDIT_CENTER",
+                        "PERM_RBAC_PROFILE_VIEW",
                         "PERM_SYSTEM_INFO_VIEW",
                         "PERM_POINTS_VIEW",
                         "PERM_AUDIT_VIEW"

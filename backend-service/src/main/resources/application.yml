@@ -3,6 +3,17 @@ server:
 spring:
   application:
     name: backend-service
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${DB_URL:jdbc:mysql://169f28d2f62ed520.natapp.cc:13006/ukastar?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:123456}
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true
@@ -18,11 +29,11 @@ security:
     access-token-ttl: 15m
     refresh-token-ttl: 7d
 minio:
-  enabled: false
-  endpoint: http://localhost:9000
-  access-key: ${MINIO_ACCESS_KEY:change-me}
-  secret-key: ${MINIO_SECRET_KEY:change-me}
-  bucket: ukastar
+  enabled: true
+  endpoint: ${MINIO_ENDPOINT:https://minio.zrxhsoft.com}
+  access-key: ${MINIO_ACCESS_KEY:p4pRjDLuxKDUYkbuPQf1}
+  secret-key: ${MINIO_SECRET_KEY:AldtlpeM6XnRuJHYMORAx01GCGa0SSMA9Iohqrif}
+  bucket: ${MINIO_BUCKET:ukastar}
   region:
 ai:
   deepseek:
@@ -30,8 +41,19 @@ ai:
     api-key: ${DEEPSEEK_API_KEY:}
     base-url: https://dashscope.aliyuncs.com/compatible-mode/v1
     model: deepseek-chat
+wechat:
+  miniapp:
+    enabled: true
+    app-id: wx7c332191d7ae364d
+    secret: f97c2cbbf82f58227b613ed6ca9a542e
+ocr:
+  proxy:
+    enabled: true
+    base-url: http://ocr-service:9000
+    token: ${OCR_SERVICE_TOKEN:}
+    token-header: X-Internal-Token
 ws:
-  enabled: false
+  enabled: true
   path: /ws
   idle-timeout: 5m
   max-text-message-size: 64KB
@@ -40,3 +62,10 @@ sentinel:
   dashboard: http://localhost:8719
   project-name: backend-service
   heartbeat-interval: 5s
+
+infra:
+  db:
+    enabled: true   # 默认启用 MyBatis-Plus 仓储（已对齐 NATAPP 环境）
+db:
+  bootstrap:
+    enabled: false   # 切换为 true 在启动时执行 schema 与 seed 脚本

@@ -15,6 +15,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * 内存积分项目仓储。
  */
 @Repository
+@org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(prefix = "infra.db", name = "enabled", havingValue = "false", matchIfMissing = true)
 public class InMemoryPointItemRepository implements PointItemRepository {
 
     private final Map<Long, PointItem> items = new ConcurrentHashMap<>();

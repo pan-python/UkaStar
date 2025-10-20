@@ -8,7 +8,7 @@ import java.time.Instant;
 public record PointRecord(
         Long id,
         Long tenantId,
-        Long familyId,
+        Long childId,
         Long operatorAccountId,
         PointActionType actionType,
         int amount,

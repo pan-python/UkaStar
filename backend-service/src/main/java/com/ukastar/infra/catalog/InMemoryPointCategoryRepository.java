@@ -15,6 +15,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * 内存类别仓储。
  */
 @Repository
+@org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(prefix = "infra.db", name = "enabled", havingValue = "false", matchIfMissing = true)
 public class InMemoryPointCategoryRepository implements PointCategoryRepository {
 
     private final Map<Long, PointCategory> categories = new ConcurrentHashMap<>();

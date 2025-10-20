@@ -24,8 +24,8 @@ public class InMemoryPointRecordRepository implements PointRecordRepository {
     }
 
     @Override
-    public Flux<PointRecord> findByFamilyId(Long familyId) {
-        return Flux.fromStream(records.stream().filter(record -> record.familyId().equals(familyId)));
+    public Flux<PointRecord> findByChildId(Long childId) {
+        return Flux.fromStream(records.stream().filter(record -> record.childId().equals(childId)));
     }
 
     @Override

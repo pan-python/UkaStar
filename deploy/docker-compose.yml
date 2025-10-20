@@ -1,0 +1,96 @@
+version: "3.9"
+
+services:
+  traefik:
+    image: traefik:v2.11
+    container_name: traefik
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL}"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+      - "--api.dashboard=true"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./traefik/traefik.yml:/traefik.yml:ro"
+      - "./traefik/acme.json:/letsencrypt/acme.json"
+    restart: unless-stopped
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    restart: unless-stopped
+
+  backend-service:
+    build:
+      context: ../backend-service
+      dockerfile: Dockerfile
+    container_name: backend-service
+    environment:
+      # 简化运行：仅配置 JWT；数据库连接如需可在 application.yml 添加并通过 env 注入
+      SECURITY_JWT_SECRET: ${BACKEND_JWT_SECRET}
+      DB_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE}?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC
+      DB_USERNAME: root
+      DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      MINIO_BUCKET: ${MINIO_BUCKET}
+      TZ: Asia/Shanghai
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend.rule=Host(`${BACKEND_DOMAIN}`) && PathPrefix(`/`)"
+      - "traefik.http.routers.backend.entrypoints=websecure"
+      - "traefik.http.routers.backend.tls.certresolver=letsencrypt"
+      - "traefik.http.services.backend.loadbalancer.server.port=8080"
+    restart: unless-stopped
+
+  ocr-service:
+    build:
+      context: ../ocr-service
+      dockerfile: Dockerfile
+    container_name: ocr-service
+    environment:
+      OCR_SERVICE_TOKEN: ${OCR_SERVICE_TOKEN}
+      OCR_TMP_DIR: ${OCR_TMP_DIR}
+      TZ: Asia/Shanghai
+    volumes:
+      - ./data/ocr-tmp:${OCR_TMP_DIR}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ocr.rule=Host(`${OCR_DOMAIN}`) && PathPrefix(`/`)"
+      - "traefik.http.routers.ocr.entrypoints=websecure"
+      - "traefik.http.routers.ocr.tls.certresolver=letsencrypt"
+      - "traefik.http.services.ocr.loadbalancer.server.port=9000"
+    restart: unless-stopped
+
+# 可选：MinIO（占位，不默认启用）
+#  minio:
+#    image: minio/minio:latest
+#    command: server /data --console-address ":9001"
+#    environment:
+#      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
+#      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
+#    volumes:
+#      - ./data/minio:/data
+#    ports:
+#      - "9000:9000"
+#      - "9001:9001"
+#    restart: unless-stopped
+
+volumes:
+  # 申明命名卷可选；本样例使用绑定目录便于观察
+  _ignore:

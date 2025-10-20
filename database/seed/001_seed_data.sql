@@ -11,10 +11,10 @@ VALUES
 
 INSERT INTO roles (id, tenant_id, code, name, description, built_in)
 VALUES
-    (1, NULL, 'platform_super_admin', '平台超管', '拥有平台全部权限', 1),
-    (2, 1, 'tenant_admin', '租户管理员', '租户全局配置权限', 1),
-    (3, 1, 'tenant_operator', '运营专员', '日常运营与积分操作权限', 1),
-    (4, 1, 'tenant_viewer', '数据只读', '只读权限', 1);
+    (1, NULL, 'PLATFORM_ADMIN', '平台超管', '拥有平台全部权限', 1),
+    (2, 1, 'TENANT_ADMIN', '租户管理员', '租户全局配置权限', 1),
+    (3, 1, 'TENANT_OPERATOR', '运营专员', '日常运营与积分操作权限', 1),
+    (4, 1, 'TENANT_VIEWER', '数据只读', '只读权限', 1);
 
 INSERT INTO perms (id, tenant_id, perm_type, code, name, description)
 VALUES
@@ -81,4 +81,3 @@ VALUES
 INSERT INTO system_configs (id, tenant_id, category, config_key, config_value, description)
 VALUES
     (1, NULL, 'growth', 'milestone_thresholds', JSON_OBJECT('bronze', 100, 'silver', 300, 'gold', 600), '成长树等级阈值默认配置');
-

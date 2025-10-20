@@ -15,6 +15,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * 内存兑换奖励仓储。
  */
 @Repository
+@org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(prefix = "infra.db", name = "enabled", havingValue = "false", matchIfMissing = true)
 public class InMemoryRewardItemRepository implements RewardItemRepository {
 
     private final Map<Long, RewardItem> rewards = new ConcurrentHashMap<>();

@@ -18,13 +18,13 @@ public class InMemoryPointBalanceRepository implements PointBalanceRepository {
     private final Map<Long, PointBalance> balances = new ConcurrentHashMap<>();
 
     @Override
-    public Mono<PointBalance> findByFamilyId(Long familyId) {
-        return Mono.justOrEmpty(balances.get(familyId));
+    public Mono<PointBalance> findByChildId(Long childId) {
+        return Mono.justOrEmpty(balances.get(childId));
     }
 
     @Override
     public Mono<PointBalance> save(PointBalance balance) {
-        balances.put(balance.familyId(), balance);
+        balances.put(balance.childId(), balance);
         return Mono.just(balance);
     }
 

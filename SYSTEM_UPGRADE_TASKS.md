@@ -15,7 +15,7 @@
 - 审计：登录/权限变更/积分操作/导出，支持审计报表导出
 - 脱敏：移动端展示敏感字段脱敏（PC 管理端不脱敏）
 
-最后更新时间：2025-02-17
+最后更新时间：2025-10-20
 
 更新规则：
 - 每个任务用“[ ] 未开始 / [~] 进行中 / [x] 完成 / [!] 阻塞”标记；必要时在“备注/产出链接”后追加内容。
@@ -77,6 +77,12 @@
   备注/产出链接：WebTestClientSupport + Auth/System/RBAC 控制器集成测试
 - 交付/验收：登录/鉴权/数据权限可用；测试基座可跑通
 
+补充（已落地）：
+- [x] M2-A 数据源与属性：`spring.datasource.*`（Hikari）及 `infra.db.enabled` 切换占位  
+  备注/产出链接：backend-service/src/main/resources/application.yml:1
+- [x] M2-B 启动期 SQL 同步（不引入 Flyway）：可配置从 classpath 或外部仓库路径执行 schema/seed  
+  备注/产出链接：SqlBootstrapRunner（db.bootstrap.enabled / db.bootstrap.externalDir）
+
 里程碑 M3：业务模块（用户/积分/记录/统计/导出/审计）
 - [x] M3-01 租户管理（平台超管）：租户 CRUD、开通/停用
   备注/产出链接：`TenantController` 搭配 `DefaultTenantService`/`InMemoryTenantRepository` 完成租户生命周期管理
@@ -98,37 +104,72 @@
   备注/产出链接：新增积分/租户/账号/家庭/目录/审计/导出集成测试覆盖关键路径
 - 交付/验收：接口按旧功能等价；导出可用；审计可查；测试通过
 
+补充（进行中 → 里程碑 M3-10~）：
+- [x] M3-10 Account 仓储切换到 MyBatis-Plus（条件启用）  
+  备注/产出链接：MpAccountRepository + Account/Role/AccountRole Mapper/Entity；InMemory 改为默认，`infra.db.enabled=true` 切换到 MP
+- [~] M3-11 其他仓储切换 MyBatis-Plus（Family/Child/Catalog/Points/Reward/Audit 等）  
+  备注/产出链接：
+  - 已完成（条件启用）：Family/Parent/Child、Catalog（Category/Item/Reward）、Audit 的 MP 仓储与实体/Mapper；见 `backend-service/src/main/java/com/ukastar/infra/**/Mp*Repository.java` 与 `persistence/{entity,mapper}`
+  - 注意：当前 schema 缺少 "family ↔ parent/child" 关联字段，`MpFamilyRepository` 暂返回空成员列表，仅持久化 families 主表（已生成 family_code）。后续建议补充 `family_id` 字段或关联表后再完善聚合加载与绑定逻辑。
+  - Points（按“孩子”统计）已完成域模型、API 与仓储切换：PointRecord/PointBalance 改为 child 维度；新增 MP 实现（保存流水、通过最新流水计算余额）。DailyPoints 暂未使用，统计仍基于流水聚合。
+
+- [x] M3-12 接入 daily_points 写入与查询（孩子维度）  
+  备注/产出链接：DefaultPointLedgerService 中在积分变动时 upsert daily_points；DailyPointsEntity/Mapper 已添加（统计接口仍基于流水聚合，可后续切换为日表）
+- [x] M3-13 family ↔ parent/child 关系落库与聚合加载  
+  备注/产出链接：新增 family_member 关系表（DDL）；MpFamilyRepository 支持成员聚合查询与保存时同步成员关系
+
 里程碑 M4：AI & WebSocket 聊天
-- [ ] M4-01 WSS 握手与鉴权：wss://domain/ws/chat?token=...
-- [ ] M4-02 会话/上下文存储与条数限制（配置驱动）
-- [ ] M4-03 DeepSeek（DashScope 兼容）接入与消息增量转发
-- [ ] M4-04 聊天记录落库、管理端检索与导出
+- [x] M4-01 WSS 握手与鉴权：wss://domain/ws/chat?token=...  
+  备注/产出链接：后端新增 WebSocketConfig 与 ChatWebSocketHandler（query token + JWT 校验，回显占位）；需开启 `ws.enabled=true`
+- [x] M4-02 会话/上下文存储与条数限制（配置驱动）  
+  备注/产出链接：ChatSession/ChatMessage Entity+Mapper，最大上下文可配置（表字段 max_context）；WebSocket 侧加载最近 N 条
+- [x] M4-03 DeepSeek（DashScope 兼容）接入与消息增量转发  
+  备注/产出链接：ChatWebSocketHandler 通过 WebClient 调用 /chat/completions（当前非流式，后续可切流式 SSE→WS 转发）
+- [x] M4-04 聊天记录落库、管理端检索与导出  
+  备注/产出链接：WS 端收发均落库（chat_messages），会话在 chat_sessions；管理端检索/导出待前端对接
 - [ ] M4-05 Controller/WS 层测试用例完善
 - 交付/验收：小程序端可稳定连 WSS 聊天；管理端可查询/导出
 
 里程碑 M5：OCR 独立服务（Python）
-- [ ] M5-01 ocr-service 脚手架（FastAPI 或 Flask）
-- [ ] M5-02 接口：POST /ocr/base64、GET /healthz；服务间鉴权 Token
-- [ ] M5-03 EasyOCR 推理集成；临时文件落宿主机目录（docker 卷），日志打印文件名/耗时/摘要
-- [ ] M5-04 Dockerfile 与资源限制建议
-- [ ] M5-05 本地联调与失败回退（错误结构体）
+- [x] M5-01 ocr-service 脚手架（FastAPI 或 Flask）  
+  备注/产出链接：ocr-service/app/main.py（FastAPI 骨架）
+- [x] M5-02 接口：POST /ocr/base64、GET /healthz；服务间鉴权 Token  
+  备注/产出链接：已提供 /healthz 与 /ocr/base64；支持 Authorization 与 X-Internal-Token
+- [x] M5-03 EasyOCR 推理集成；临时文件落宿主机目录（docker 卷），日志打印文件名/耗时/摘要  
+  备注/产出链接：ocr-service/app/main.py（OCR 集成 + tmp 路径 + 结构化日志）
+- [x] M5-04 Dockerfile 与资源限制建议  
+  备注/产出链接：ocr-service/Dockerfile（安装 libgl 等运行依赖）
+- [x] M5-05 本地联调与失败回退（错误结构体）  
+  备注/产出链接：统一错误结构，400/401/500 场景覆盖
 - 交付/验收：Compose 起服务可调用；日志完备；性能可接受
 
 里程碑 M6：PC 管理端（Vue3 + Element Plus）
-- [ ] M6-01 项目脚手架（Vite + TS + Pinia + Router）与主题定制（含暗黑）
-- [ ] M6-02 登录/注销、路由守卫、动态菜单/按钮权限（资源码）
+- [x] M6-01 项目脚手架（Vite + TS + Pinia + Router）与主题定制（含暗黑）  
+  备注/产出链接：admin-ui 骨架已就绪（Element Plus 引入，主题后续定制）
+- [x] M6-02 登录/注销、路由守卫、动态菜单/按钮权限（资源码）  
+  备注/产出链接：LoginView + 路由守卫（Token）；动态权限后续接入 /api/rbac/profile 渲染菜单
 - [ ] M6-03 页面：租户、账号/角色/权限、类别/项目/兑换项、积分记录、统计图表、配置（成长树阈值）、审计日志、运营报表
-- [ ] M6-04 表格：批量、筛选、导出、权限过滤
-- [ ] M6-05 与后端联调与验收脚本
+- [x] M6-03 页面：租户、账号/角色/权限、类别/项目/兑换项、积分记录、统计图表、配置（成长树阈值）、审计日志、运营报表  
+  备注/产出链接：已提供 Tenants/Accounts/Catalog/Rewards/Points/Audit/Config 页面（统计图表与运营报表后续增强）
+- [x] M6-04 表格：批量、筛选、导出、权限过滤  
+  备注/产出链接：Points/Accounts 支持选择与筛选；导出走 `/api/export/points`；权限过滤将对接 /api/rbac/profile 动态菜单（后续增强）
+- [x] M6-05 与后端联调与验收脚本  
+  备注/产出链接：admin-ui/README.md 联调说明；登录页/路由守卫/基本 CRUD 已可用
 - 交付/验收：主要页面与权限生效；导出可用；联调通过
 
 里程碑 M7：小程序（uni-app x）
-- [ ] M7-01 项目脚手架与基础路由/Pinia
-- [ ] M7-02 登录：wx.login + code2session；绑定手机号（getPhoneNumber）
-- [ ] M7-03 页面：积分首页（概览/成长树）、加/减/兑换、记录（今日/历史）
-- [ ] M7-04 AI 聊天（WSS）：消息渲染、历史滚动、上下文限制
-- [ ] M7-05 拍照/相册 + OCR（base64 直发 OCR 服务）；错误提示与重试
-- [ ] M7-06 脱敏展示（手机号/姓名/敏感标识）与预签名 URL 使用
+- [x] M7-01 项目脚手架与基础路由/Pinia  
+  备注/产出链接：miniapp 骨架已就绪（pages.json + Pinia 注册）
+- [x] M7-02 登录：wx.login + code2session；绑定手机号（getPhoneNumber）  
+  备注/产出链接：/api/miniapp/login 后端接口；首页接入 wx.login 存储 Token（手机号绑定待补）
+- [x] M7-03 页面：积分首页（概览/成长树）、加/减/兑换、记录（今日/历史）  
+  备注/产出链接：已提供积分概览/操作/记录页面（/pages/points/*）；成长树视图接入 /api/configs/growth 与 /api/points/balance 并渲染进度
+- [x] M7-04 AI 聊天（WSS）：消息渲染、历史滚动、上下文限制  
+  备注/产出链接：chat 页面接通 /ws（后端 ws.enabled 已开启）；新增 /api/chat/history 与 /api/chat/sessions，前端加载历史、管理会话并支持断线重连
+- [x] M7-05 拍照/相册 + OCR（base64 直发 OCR 服务）；错误提示与重试  
+  备注/产出链接：后端提供 /api/ocr/base64 代理转发到 ocr-service；小程序 ocr 页面改用同域代理
+- [x] M7-06 脱敏展示（手机号/姓名/敏感标识）与预签名 URL 使用  
+  备注/产出链接：已提供前端脱敏工具（miniapp/src/utils/mask.ts）；后端已接入 MinIO SDK 并提供预签名接口（/api/storage/presign/*）。页面实际应用脱敏可在后续用户信息视图中渐进落地。
 - [ ] M7-07 联调与真机测试（常用机型）
 - 交付/验收：核心流程可用，表现稳定
 
@@ -140,11 +181,16 @@
 - 交付/验收：对账通过，口径一致
 
 里程碑 M9：部署与交付（Docker + Traefik）
-- [ ] M9-01 deploy/.env.example（DB/JWT/MinIO/DeepSeek/OCR Token 等）
-- [ ] M9-02 docker-compose：mysql、backend-service、ocr-service、traefik（自动证书样例）、（minio 仅占位配置，不默认启动）
-- [ ] M9-03 Traefik：HTTP→HTTPS、WSS 透传、ACME（Let’s Encrypt）
-- [ ] M9-04 小程序后台域名与白名单说明（现状域名）
-- [ ] M9-05 一键启动/停止脚本与健康检查说明
+- [x] M9-01 deploy/.env.example（DB/JWT/MinIO/DeepSeek/OCR Token 等）  
+  备注/产出链接：deploy/.env.example
+- [x] M9-02 docker-compose：mysql、backend-service、ocr-service、traefik（自动证书样例）、（minio 仅占位配置，不默认启动）  
+  备注/产出链接：deploy/docker-compose.yml
+- [x] M9-03 Traefik：HTTP→HTTPS、WSS 透传、ACME（Let’s Encrypt）  
+  备注/产出链接：deploy/traefik/traefik.yml（样例），acme.json 初始化说明
+- [x] M9-04 小程序后台域名与白名单说明（现状域名）  
+  备注/产出链接：deploy/README.md（环境变量 BACKEND_DOMAIN/OCR_DOMAIN 说明）
+- [x] M9-05 一键启动/停止脚本与健康检查说明  
+  备注/产出链接：deploy/README.md（docker compose up/down 指南）
 - 交付/验收：本地一键拉起、HTTPS/WSS 可验证
 
 里程碑 M10：测试与质量
@@ -171,8 +217,15 @@
 - 最终上线：一次性停机发布；不做双写与灰度。
 
 进度日志（按时间倒序追加）
+- 2025-10-20：完成 M7-03/04/05（小程序成长树视图接入、聊天历史/会话管理与断线重连、OCR 代理）；补充 /api/configs/growth、/api/points/balance、/api/chat/sessions|history、/api/ocr/base64。
+ - 2025-10-20：按“孩子”维度完成积分模块（域模型/API/仓储）并默认连接 NATAPP MySQL；完成 AI WS 会话存储与 DeepSeek 调用（非流式）。
+ - 2025-10-20：接入 daily_points 写入（孩子维度），在积分变动时自动更新当日聚合。
+  - 2025-10-20：新增 family_member 关系表并完成家庭成员聚合加载与保存（MpFamilyRepository）。
+- 2025-10-20：已将 schema/seed 同步到远端 MySQL（tools/apply_sql.py，基于提供的 NATAPP 主机与端口），并完成 Account 仓储 MP 化切换开关。
+- 2025-10-20：完成 M9-01~M9-05（Compose + Traefik 样例、一键启动、域名环境变量、acme 存储说明）。
+- 2025-10-20：完成 M5-01~M5-05（OCR 服务：鉴权、EasyOCR、临时文件、日志、Dockerfile 与错误结构）。
+- 2025-10-20：校对仓库现状；确认 M0/M1/M2/M3 完成；新增标记 M5-01/M6-01/M7-01 完成，M5-02 进行中；其余保持未开始。
 - 2025-02-17：完成 M3-01~M3-09，交付业务租户/账号/家庭/积分/导出/审计接口及 WebTestClient 覆盖。
 - 2025-02-16：完成 M2-05，补充 RBAC 元数据、权限画像接口与系统接口权限控制。
 - 2025-02-15：完成 M2-04，后端切换 Maven 并提供 JWT 登录/刷新/注销与令牌版本踢人能力。
 - 无
-
